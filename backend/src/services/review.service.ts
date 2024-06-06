@@ -16,4 +16,9 @@ export class ReviewService {
     const skip = (page - 1) * limit;
     return Review.find({ userId }).skip(skip).limit(limit).exec();
   }
+
+  getAllReviews(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return Review.find().skip(skip).limit(limit).exec();
+  }
 }

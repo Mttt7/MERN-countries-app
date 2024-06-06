@@ -45,6 +45,21 @@ export class ReviewController {
       return res.status(500).json({ error: error.message });
     }
   };
+
+  public getAllReviews = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    const page: number = parseInt(req.query.page as string) || 1;
+    const limit: number = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const reviews = await this.reviewService.getAllReviews(page, limit);
+      return res.json({ reviews, page, limit });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default new ReviewController();
