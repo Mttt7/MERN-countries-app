@@ -33,9 +33,10 @@ export const register = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
+
     const hashedPassword = await bcrypt.hash(password, 8);
-    const user = new User({ email, password: hashedPassword });
+    const user = new User({ email, password: hashedPassword, username });
     await user.save();
     return res.status(201).json({ message: "User created successfully" });
   } catch (error: any) {
