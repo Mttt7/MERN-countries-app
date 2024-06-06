@@ -3,6 +3,7 @@ import express, { Application, Request, Response } from "express";
 import { connectDatabase } from "./config/mongo.config";
 import authRoutes from "./routes/auth.routes";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import reviewRoutes from "./routes/review.routes";
 
 //---------------------------------------------------------------
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 // this middleware will apply to all routes after this line
 app.use(authMiddleware);
+app.use("/api/reviews", reviewRoutes);
 
 const PORT = process.env.PORT;
 
