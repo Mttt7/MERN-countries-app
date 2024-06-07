@@ -52,10 +52,14 @@ export class ReviewController {
   ): Promise<Response> => {
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
+    let isLastPage: boolean;
 
     try {
-      const reviews = await this.reviewService.getAllReviews(page, limit);
-      return res.json({ reviews, page, limit });
+      const { reviews, isLastPage } = await this.reviewService.getAllReviews(
+        page,
+        limit
+      );
+      return res.json({ reviews, page, limit, isLastPage });
     } catch (error: any) {
       return res.status(500).json({ error: error.message });
     }
