@@ -8,12 +8,16 @@ export interface IReview extends Document {
   photoUrl: string;
   createdAt: Date;
   updatedAt: Date;
+  title: string;
+  city: string;
 }
 
 const ReviewSchema: Schema = new Schema(
   {
     googleMapsUrl: { type: String, required: false },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    title: { type: String, required: true, minlength: 5, maxlength: 50 },
+    city: { type: String, required: true, minlength: 3, maxlength: 50 },
     rating: {
       type: Number,
       required: true,
@@ -21,6 +25,7 @@ const ReviewSchema: Schema = new Schema(
       max: 10.0,
       validate: {
         validator: function (v: number) {
+          if (Number.isInteger(v)) return true;
           return /^(\d+\.\d)$/.test(v.toString());
         },
         message: (props: any) =>

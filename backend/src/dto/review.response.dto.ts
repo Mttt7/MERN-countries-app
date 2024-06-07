@@ -8,4 +8,6 @@ export interface ReviewResponseDto {
   photoUrl: string;
   createdAt: Date;
   updatedAt: Date;
+  title: string;
+  city: string;
 }

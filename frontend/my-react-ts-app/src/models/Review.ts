@@ -8,4 +8,7 @@ export interface Review {
   username: string;
   createdAt: Date;
   updatedAt: Date;
+
+  title: string;
+  city: string;
 }
