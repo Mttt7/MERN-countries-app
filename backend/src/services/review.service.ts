@@ -22,6 +22,7 @@ export class ReviewService {
   ): Promise<{ reviews: ReviewResponseDto[]; isLastPage: boolean }> {
     const skip = (page - 1) * limit;
     let reviews = await Review.find({ userId })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit + 1)
       .exec(); // Fetch one extra item to check for last page
@@ -44,6 +45,8 @@ export class ReviewService {
           photoUrl: review.photoUrl,
           createdAt: review.createdAt,
           updatedAt: review.updatedAt,
+          title: review.title,
+          city: review.city,
         };
         return reviewDto;
       })
@@ -58,6 +61,7 @@ export class ReviewService {
   ): Promise<{ reviews: ReviewResponseDto[]; isLastPage: boolean }> {
     const skip = (page - 1) * limit;
     let reviews = await Review.find()
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit + 1)
       .exec(); // Fetch one extra item to check for last page
@@ -80,6 +84,8 @@ export class ReviewService {
           photoUrl: review.photoUrl,
           createdAt: review.createdAt,
           updatedAt: review.updatedAt,
+          title: review.title,
+          city: review.city,
         };
         return reviewDto;
       })
