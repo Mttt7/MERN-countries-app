@@ -1,88 +1,84 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import supabase from "../utils/supabase";
-import { createClient } from "@supabase/supabase-js";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUserData } from "../models/IUserData";
-import { v4 as uuidv4 } from "uuid";
 
-function NewReview() {
-  const supabase = createClient(
-    "https://miwgfoqqvmydfqnthiby.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pd2dmb3Fxdm15ZGZxbnRoaWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc4NDU2MjgsImV4cCI6MjAzMzQyMTYyOH0.vC2kiePLEOqvq91mngWMmnP9h_WLydQBRbE0HhqXFMU"
-    // process.env.VITE_SUPABASE_URL!,
-    // process.env.VITE_SUPABASE_ANON_KEY!
-  );
-
+function EditReview() {
   const [rating, setRating] = useState(5.0);
-  const [media, setMedia]: any = useState();
+  const { reviewId } = useParams();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     watch,
+    reset,
     setValue,
   } = useForm();
 
   const navigate = useNavigate();
-  const auth = useAuthUser<IUserData>();
 
   const authHeader = useAuthHeader();
 
   const ratingValue = watch("rating", rating);
 
-  async function uploadImage(e: any) {
-    let file = e.target.files[0];
-    const fileName = `${auth?.username}/${uuidv4()}`;
-
-    const { data, error } = await supabase.storage
-      .from("images")
-      .upload(fileName, file);
-
-    if (data) {
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-
-      if (data.publicUrl) {
-        console.log(data.publicUrl);
-        setMedia(data.publicUrl); // Zapisz URL do stanu, aby można było go dodać do recenzji
-      }
-    } else {
-      console.error(error);
-      toast.error("Nie udało się przesłać obrazu.");
-    }
-  }
-
-  const onSubmit = async (newReview: any) => {
-    if (isValid) {
-      newReview.photoUrl = media; // Przypisz pierwszy URL obrazu z listy, jeśli istnieje
+  useEffect(() => {
+    const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/users/new/review",
+          `http://localhost:3000/api/reviews/sec/${reviewId}`,
           {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
               ...(authHeader && { Authorization: authHeader }),
             },
-            body: JSON.stringify(newReview),
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          reset(data);
+        } else {
+          throw new Error(data.message || "Problem z pobraniem danych");
+        }
+      } catch (error: any) {
+        console.error("Failed to fetch review:", error);
+        toast.error(error.message || "Failed to fetch review");
+      }
+    };
+
+    fetchData();
+  }, [reviewId, reset, authHeader]);
+
+  const onSubmit = async (updatedReview: any) => {
+    if (isValid) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/reviews/sec/${reviewId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              ...(authHeader && { Authorization: authHeader }),
+            },
+            body: JSON.stringify(updatedReview),
           }
         );
 
         const data = await response.json();
 
         if (response.status === 400) {
-          throw new Error(data);
+          if (data === "Niepoprawne dane") {
+            throw new Error(data);
+          } else {
+            throw new Error(data);
+          }
         }
 
         navigate("/feed");
-        toast.success("Recenzja została dodana!");
       } catch (error: any) {
-        console.error("Niepoprawne dane", error);
-        toast.error("Nie udało się dodać recenzji");
+        toast.error("Niepoprawne dane");
       }
     }
   };
@@ -131,15 +127,11 @@ function NewReview() {
           className="input input-sm input-bordered  max-w-xs w-[300px]"
           {...register("googleMapsUrl", { required: false, minLength: 5 })}
         />
-        <input
-          type="file"
-          onChange={(e) => uploadImage(e)}
-          className="file-input  w-[300px]"
-        />
-        <button className="btn btn-secondary">Dodaj</button>
+        <input type="file" className="file-input  w-[300px]" />
+        <button className="btn btn-secondary">Edytuj</button>
       </form>
     </div>
   );
 }
 
-export default NewReview;
+export default EditReview;

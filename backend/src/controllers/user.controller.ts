@@ -23,6 +23,18 @@ export class UserController {
       return res.status(500).json({ error: "Internal server error" });
     }
   };
+
+  public likeReview = async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+    const reviewId: string = req.params.reviewId;
+
+    try {
+      const response = await this.userService.likeReview(userId, reviewId);
+      return res.json(response);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default new UserController();

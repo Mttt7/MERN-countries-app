@@ -6,5 +6,6 @@ const router = Router();
 
 router.get("/:userId", userController.getUserProfileById);
 router.post("/new/review", reviewController.createReview);
+router.post("/:reviewId", userController.likeReview);
 
 export default router;

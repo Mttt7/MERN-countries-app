@@ -69,6 +69,29 @@ export class ReviewController {
     }
   };
 
+  public editReview = async (req: Request, res: Response) => {
+    const reviewId = req.params.id;
+    const user: IUser = (req as any).user;
+
+    try {
+      const review = await this.reviewService.getReviewById(reviewId);
+      if (review === null) {
+        return res.status(404).json({ error: "Review not found." });
+      }
+      if (review.userId.toString() !== user.id) {
+        return res
+          .status(401)
+          .json({ error: "You are not authorized to edit this review." });
+      }
+
+      await this.reviewService.editReview(reviewId, req.body);
+      return res.json({ message: "Review edited successfully." });
+    } catch (error: any) {
+      console.error("Error deleting review:", error);
+      return res.status(500).json({ error: error.message });
+    }
+  };
+
   public getAllReviews = async (
     req: Request,
     res: Response
@@ -83,6 +106,21 @@ export class ReviewController {
         limit
       );
       return res.json({ reviews, page, limit, isLastPage });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  };
+
+  public getReviewById = async (req: Request, res: Response) => {
+    const reviewId = req.params.reviewId;
+    console.log(reviewId);
+
+    try {
+      const review = await this.reviewService.getReviewById(reviewId);
+      if (review === null) {
+        return res.status(404).json({ error: "Review not found." });
+      }
+      return res.json(review);
     } catch (error: any) {
       return res.status(500).json({ error: error.message });
     }

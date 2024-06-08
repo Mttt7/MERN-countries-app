@@ -10,6 +10,7 @@ export interface IReview extends Document {
   updatedAt: Date;
   title: string;
   city: string;
+  likes: number;
 }
 
 const ReviewSchema: Schema = new Schema(
@@ -33,7 +34,7 @@ const ReviewSchema: Schema = new Schema(
       },
     },
     photoUrl: { type: String, required: false },
-
+    likes: { type: Number, default: 0 },
     comment: {
       type: String,
       required: true,

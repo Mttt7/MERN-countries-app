@@ -22,12 +22,10 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    return res
-      .status(200)
-      .json({
-        token,
-        user: { id: user._id, email: user.email, username: user.username },
-      });
+    return res.status(200).json({
+      token,
+      user: { id: user._id, email: user.email, username: user.username },
+    });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
@@ -43,7 +41,7 @@ export const register = async (
     const hashedPassword = await bcrypt.hash(password, 8);
     const user = new User({ email, password: hashedPassword, username });
     await user.save();
-    return res.status(201).json({ message: "User created successfully" });
+    return res.status(201).json({ data: user });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

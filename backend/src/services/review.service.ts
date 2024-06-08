@@ -23,6 +23,10 @@ export class ReviewService {
     return Review.findByIdAndDelete(reviewId).exec();
   }
 
+  editReview(reviewId: string, body: any) {
+    return Review.findByIdAndUpdate(reviewId, body, { new: true }).exec();
+  }
+
   async getReviewsByUserId(
     userId: string,
     page: number = 1,
@@ -55,6 +59,7 @@ export class ReviewService {
           updatedAt: review.updatedAt,
           title: review.title,
           city: review.city,
+          likes: review.likes,
         };
         return reviewDto;
       })
@@ -94,6 +99,7 @@ export class ReviewService {
           updatedAt: review.updatedAt,
           title: review.title,
           city: review.city,
+          likes: review.likes,
         };
         return reviewDto;
       })

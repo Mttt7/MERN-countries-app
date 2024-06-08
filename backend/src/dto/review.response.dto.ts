@@ -10,4 +10,5 @@ export interface ReviewResponseDto {
   updatedAt: Date;
   title: string;
   city: string;
+  likes: number;
 }

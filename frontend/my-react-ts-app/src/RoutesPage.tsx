@@ -3,6 +3,7 @@ import Login from "./components/login";
 import Register from "./components/register";
 import Feed from "./components/feed";
 import NewReview from "./components/newReview";
+import EditReview from "./components/editReview";
 
 const RoutesPage = () => {
   return (
@@ -11,6 +12,7 @@ const RoutesPage = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/feed" element={<Feed />} />
       <Route path="/add-new-review" element={<NewReview />} />
+      <Route path="/edit-review/:reviewId" element={<EditReview />} />
     </Routes>
   );
 };

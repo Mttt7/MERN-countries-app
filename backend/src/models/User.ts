@@ -7,6 +7,7 @@ export interface IUser extends Document {
   username: string;
   createdAt: Date;
   updatedAt: Date;
+  likedReviews: string[];
 }
 
 const UserSchema: Schema = new Schema(
@@ -20,6 +21,7 @@ const UserSchema: Schema = new Schema(
       minlength: 3,
       maxlength: 30,
     },
+    likedReviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
   },
   { timestamps: true }
 );

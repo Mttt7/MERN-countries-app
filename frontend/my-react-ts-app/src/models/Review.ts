@@ -11,4 +11,6 @@ export interface Review {
 
   title: string;
   city: string;
+
+  likes: number;
 }
