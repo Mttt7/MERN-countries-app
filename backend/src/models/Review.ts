@@ -25,7 +25,7 @@ const ReviewSchema: Schema = new Schema(
       max: 10.0,
       validate: {
         validator: function (v: number) {
-          if (Number.isInteger(v)) return true;
+          if (Number.isInteger(v) && v >= 1 && v <= 10) return true;
           return /^(\d+\.\d)$/.test(v.toString());
         },
         message: (props: any) =>

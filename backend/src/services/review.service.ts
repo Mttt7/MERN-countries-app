@@ -15,6 +15,14 @@ export class ReviewService {
     return newReview.save();
   }
 
+  getReviewById(reviewId: string) {
+    return Review.findById(reviewId).exec();
+  }
+
+  deleteReview(reviewId: string) {
+    return Review.findByIdAndDelete(reviewId).exec();
+  }
+
   async getReviewsByUserId(
     userId: string,
     page: number = 1,

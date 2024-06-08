@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Review } from "../models/Review";
 import Actions from "./actions";
+import { IUserData } from "../models/IUserData";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 
 interface ReviewResponse {
   reviews: Review[];
@@ -33,6 +36,11 @@ function Feed() {
   const [page, setPage] = useState(1);
   const [isLastPage, setIsLastPage] = useState(false);
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+
+  const authHeader = useAuthHeader();
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -52,6 +60,7 @@ function Feed() {
       fetchReviews();
     }
   }, [page]);
+  const auth = useAuthUser<IUserData>();
 
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -68,6 +77,30 @@ function Feed() {
     [isLastPage]
   );
 
+  async function handleDeleteReview(id: string | undefined) {
+    if (!id) return;
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/reviews/sec/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            ...(authHeader && { Authorization: authHeader }),
+          },
+        }
+      );
+      if (response.status === 200) {
+        setReviews((prevReviews) =>
+          prevReviews.filter((review) => review.id !== id)
+        );
+        setSelectedReview(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete review:", error);
+    }
+  }
+
   return (
     <div className="my-5 mb-10">
       <ul className="flex flex-col items-center justify-center gap-10">
@@ -76,10 +109,43 @@ function Feed() {
             key={review.id}
             ref={index === reviews.length - 1 ? lastReviewRef : null} // Set ref to the last element
             className="text-neutral w-[500px] h-[700px] bg-white rounded-sm 
-            flex flex-col items-center justify-start p-4 shadow-2xl fade-in"
+            flex flex-col items-center justify-start p-4 shadow-2xl fade-in "
           >
-            <div className="text-xl italic font-semibold">
-              @{review.username}
+            <div className="text-xl italic font-semibold flex items-center justify-center w-full ">
+              <div className="w-[33%]"></div>
+              <div className="w-[33%] text-center">@{review.username}</div>
+
+              {review.userId === auth?.id && (
+                <div className="dropdown dropdown-end w-[33%] flex items-center justify-end">
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    className="text-sm text-secondary m-1 hover:underline cursor-pointer"
+                  >
+                    więcej
+                  </div>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    <li>
+                      <label
+                        onClick={() =>
+                          (setSelectedReview(review),
+                          document.getElementById(
+                            "my_modal_5"
+                          )! as any).showModal()
+                        }
+                      >
+                        Usuń
+                      </label>
+                    </li>
+                    <li>
+                      <a>Edytuj</a>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="w-[300px] h-[300px] shadow-xl">
               <img
@@ -95,6 +161,38 @@ function Feed() {
           </li>
         ))}
       </ul>
+
+      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Usuń recenzje</h3>
+          <p className="py-4">
+            Tej decyzji nie można cofnąć. Czy na pewno chcesz usunąć tę
+            recenzję?{" "}
+            <span className="text-primary">{selectedReview?.title}</span>
+          </p>
+          <div className="modal-action">
+            <form
+              method="dialog"
+              className="flex items-center justify-center gap-3"
+            >
+              <button
+                className="btn btn-secondary text-white"
+                onClick={() => setSelectedReview(null)}
+              >
+                Anuluj
+              </button>
+              <button
+                className="btn btn-error text-white"
+                onClick={() => {
+                  handleDeleteReview(selectedReview?.id);
+                }}
+              >
+                Usuń
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
